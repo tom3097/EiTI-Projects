@@ -1,0 +1,24 @@
+wc -l `find . -name \*.py -print` `find . -name \*.cpp -print` `find . -name \*.css -print` `find . -name \*.js -print` `find . -name \*.html -print`
+     3 ./utils/message.py
+     0 ./utils/__init__.py
+   246 ./calculations/compareCardsUT.py
+     0 ./calculations/__init__.py
+     0 ./game/__init__.py
+   439 ./game/game.py
+   123 ./game/player.py
+    28 ./game/hand.py
+    12 ./game/card.py
+    44 ./game/deck.py
+     9 ./core/run_server.py
+    89 ./core/websocket.py
+   178 ./core/table.py
+     0 ./core/__init__.py
+    71 ./core/client.py
+   102 ./core/server.py
+    36 ./core/accept_player.py
+   265 ./core/controller.py
+   801 ./calculations/CardsCalculations.cpp
+   365 ./app/style/app.css
+   460 ./app/app.js
+   211 ./app/index.html
+  3482 razem

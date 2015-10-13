@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html ng-app = "PokerMain">
+<head>
+    <title>Poker Online</title>
+    <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css">
+    <link rel="stylesheet" href="style/app.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- .js for components-->
+    <script src="http://code.angularjs.org/1.3.15/angular.min.js"></script>
+    <script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+    <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+    <script src="https://rawgithub.com/alalonde/angular-scrollable-table/master/angular-scrollable-table.js"></script>
+    <script src="https://cdn.socket.io/socket.io-1.3.5.js"></script>
+    <script src="app.js"></script>
+
+</head>
+    <body ng-controller = "PokerCtrl">
+    <div style="margin:0 auto;">
+        <div id="poker_table" class="poker_table" data-uid="">
+            <div ng-show = "is_players_visible[0]" id="seat1" class="seat">
+                <div class="players_cards">
+                    <div ng-show = "game_has_started && is_card_visible[0]" class="card players_cards_first" ng-style="{'background-image': getImageLocation(players_cards[0].first_card.face, players_cards[0].first_card.suit)}"></div>
+                    <div ng-show = "game_has_started && is_card_visible[0]" class="card players_cards_second" ng-style="{'background-image': getImageLocation(players_cards[0].second_card.face, players_cards[0].second_card.suit)}"></div>
+                    <div ng-show = "game_has_started && !is_card_visible[0]" class="card players_cards_first"></div>
+                    <div ng-show = "game_has_started && !is_card_visible[0]" class="card players_cards_second"></div>
+                </div>
+                <div class="players_data">
+                    <div class="players_name" >{{players_name[0]}}</div>
+                    <div class="players_name" >Stack: ${{players_stack[0]}}</div>
+                    <div ng-show = "game_has_started && dealer == 0" id = "dealer_button" class = "board_chips"></div>
+                    <div ng-show = "game_has_started && big_blind == 0" id = "big_blind_button" class = "board_chips"></div>
+                    <div ng-show = "game_has_started && small_blind == 0" id = "small_blind_button" class = "board_chips"></div>
+                    <div ng-show = "game_has_started && players_turn[0]" id = "players_turn" class = "board_chips"></div>
+                    <div ng-show = "!game_has_started && is_players_ready[0]" id = "players_ready" class = "board_chips"></div>
+                    <div ng-show = "game_has_started && is_players_folded[0]" id = "players_folded" class = "board_chips"></div>
+                </div>
+                <div ng-show = "players_contribution[0]>0" class="bet">${{players_contribution[0]}}</div>
+            </div>
+            <div ng-show = "is_players_visible[1]" id="seat2" class="seat">
+                <div class="players_cards">
+                    <div ng-show = "game_has_started && is_card_visible[1]" class="card players_cards_first" ng-style="{'background-image': getImageLocation(players_cards[1].first_card.face, players_cards[1].first_card.suit)}"></div>
+                    <div ng-show = "game_has_started && is_card_visible[1]" class="card players_cards_second" ng-style="{'background-image': getImageLocation(players_cards[1].second_card.face, players_cards[1].second_card.suit)}"></div>
+                    <div ng-show = "game_has_started && !is_card_visible[1]" class="card players_cards_first"></div>
+                    <div ng-show = "game_has_started && !is_card_visible[1]" class="card players_cards_second"></div>
+                </div>
+                <div class="players_data">
+                    <div class="players_name">{{players_name[1]}}</div>
+                    <div class="players_name">Stack: ${{players_stack[1]}}</div>
+                    <div ng-show = "game_has_started && dealer == 1" id = "dealer_button" class = "board_chips"></div>
+                    <div ng-show = "game_has_started && big_blind == 1" id = "big_blind_button" class = "board_chips"></div>
+                    <div ng-show = "game_has_started && small_blind == 1" id = "small_blind_button" class = "board_chips"></div>
+                    <div ng-show = "game_has_started && players_turn[1]" id = "players_turn" class = "board_chips"></div>
+                    <div ng-show = "!game_has_started && is_players_ready[1]" id = "players_ready" class = "board_chips"></div>
+                    <div ng-show = "game_has_started && is_players_folded[1]" id = "players_folded" class = "board_chips"></div>
+                </div>
+                <div ng-show = "players_contribution[1]>0" class="bet">${{players_contribution[1]}}</div>
+            </div>
+            <div ng-show = "is_players_visible[2]" id="seat3" class="seat">
+                <div class="players_cards">
+                    <div ng-show = "game_has_started && is_card_visible[2]" class="card players_cards_first" ng-style="{'background-image': getImageLocation(players_cards[2].first_card.face, players_cards[2].first_card.suit)}"></div>
+                    <div ng-show = "game_has_started && is_card_visible[2]" class="card players_cards_second" ng-style="{'background-image': getImageLocation(players_cards[2].second_card.face, players_cards[2].second_card.suit)}"></div>
+                    <div ng-show = "game_has_started && !is_card_visible[2]" class="card players_cards_first"></div>
+                    <div ng-show = "game_has_started && !is_card_visible[2]" class="card players_cards_second"></div>
+                </div>
+                <div class="players_data">
+                    <div class="players_name">{{players_name[2]}}</div>
+                    <div  class="players_name">Stack: ${{players_stack[2]}}</div>
+                    <div ng-show = "game_has_started && dealer == 2" id = "dealer_button" class = "board_chips"></div>
+                    <div ng-show = "game_has_started && big_blind == 2" id = "big_blind_button" class = "board_chips"></div>
+                    <div ng-show = "game_has_started && small_blind == 2" id = "small_blind_button" class = "board_chips"></div>
+                    <div ng-show = "game_has_started && players_turn[2]" id = "players_turn" class = "board_chips"></div>
+                    <div ng-show = "!game_has_started && is_players_ready[2]" id = "players_ready" class = "board_chips"></div>
+                    <div ng-show = "game_has_started && is_players_folded[2]" id = "players_folded" class = "board_chips"></div>
+                </div>
+                <div ng-show = "players_contribution[2]>0" class="bet">${{players_contribution[2]}}</div>
+            </div>
+            <div ng-show = "is_players_visible[3]" id="seat4" class="seat">
+                <div class="players_cards">
+                    <div ng-show = "game_has_started && is_card_visible[3]" class="card players_cards_first" ng-style="{'background-image': getImageLocation(players_cards[3].first_card.face, players_cards[3].first_card.suit)}"></div>
+                    <div ng-show = "game_has_started && is_card_visible[3]" class="card players_cards_second" ng-style="{'background-image': getImageLocation(players_cards[3].second_card.face, players_cards[3].second_card.suit)}"></div>
+                    <div ng-show = "game_has_started && !is_card_visible[3]" class="card players_cards_first"></div>
+                    <div ng-show = "game_has_started && !is_card_visible[3]" class="card players_cards_second"></div>
+                </div>
+                <div class="players_data">
+                    <div class="players_name">{{players_name[3]}}</div>
+                    <div class="players_name">Stack: ${{players_stack[3]}}</div>
+                    <div ng-show = "game_has_started && dealer == 3" id = "dealer_button" class = "board_chips"></div>
+                    <div ng-show = "game_has_started && big_blind == 3" id = "big_blind_button" class = "board_chips"></div>
+                    <div ng-show = "game_has_started && small_blind == 3" id = "small_blind_button" class = "board_chips"></div>
+                    <div ng-show = "game_has_started && players_turn[3]" id = "players_turn" class = "board_chips"></div>
+                    <div ng-show = "!game_has_started && is_players_ready[3]" id = "players_ready" class = "board_chips"></div>
+                    <div ng-show = "game_has_started && is_players_folded[3]" id = "players_folded" class = "board_chips"></div>
+                </div>
+                <div ng-show = "players_contribution[3]>0" class="bet">${{players_contribution[3]}}</div>
+            </div>
+            <div ng-show = "is_players_visible[4]" id="seat5" class="seat">
+                <div class="players_cards">
+                    <div ng-show = "game_has_started && is_card_visible[4]" class="card players_cards_first" ng-style="{'background-image': getImageLocation(players_cards[4].first_card.face, players_cards[4].first_card.suit)}"></div>
+                    <div ng-show = "game_has_started && is_card_visible[4]" class="card players_cards_second" ng-style="{'background-image': getImageLocation(players_cards[4].second_card.face, players_cards[4].second_card.suit)}"></div>
+                    <div ng-show = "game_has_started && !is_card_visible[4]" class="card players_cards_first"></div>
+                    <div ng-show = "game_has_started && !is_card_visible[4]" class="card players_cards_second"></div>
+                </div>
+                <div class="players_data">
+                    <div class="players_name">{{players_name[4]}}</div>
+                    <div class="players_name">Stack: ${{players_stack[4]}}</div>
+                    <div ng-show = "game_has_started && dealer == 4" id = "dealer_button" class = "board_chips"></div>
+                    <div ng-show = "game_has_started && big_blind == 4" id = "big_blind_button" class = "board_chips"></div>
+                    <div ng-show = "game_has_started && small_blind == 4" id = "small_blind_button" class = "board_chips"></div>
+                    <div ng-show = "game_has_started && players_turn[4]" id = "players_turn" class = "board_chips"></div>
+                    <div ng-show = "!game_has_started && is_players_ready[4]" id = "players_ready" class = "board_chips"></div>
+                    <div ng-show = "game_has_started && is_players_folded[4]" id = "players_folded" class = "board_chips"></div>
+                </div>
+                <div ng-show = "players_contribution[4]>0" class="bet">${{players_contribution[4]}}</div>
+            </div>
+            <div ng-show = "is_players_visible[5]" id="seat6" class="seat">
+                <div class="players_cards">
+                    <div ng-show = "game_has_started && is_card_visible[5]" class="card players_cards_first" ng-style="{'background-image': getImageLocation(players_cards[5].first_card.face, players_cards[5].first_card.suit)}"></div>
+                    <div ng-show = "game_has_started && is_card_visible[5]" class="card players_cards_second" ng-style="{'background-image': getImageLocation(players_cards[5].second_card.face, players_cards[5].second_card.suit)}"></div>
+                    <div ng-show = "game_has_started && !is_card_visible[5]" class="card players_cards_first"></div>
+                    <div ng-show = "game_has_started && !is_card_visible[5]" class="card players_cards_second"></div>
+                </div>
+                <div class="players_data">
+                    <div class="players_name">{{players_name[5]}}</div>
+                    <div class="players_name">Stack: ${{players_stack[5]}}</div>
+                    <div ng-show = "game_has_started && dealer == 5" id = "dealer_button" class = "board_chips"></div>
+                    <div ng-show = "game_has_started && big_blind == 5" id = "big_blind_button" class = "board_chips"></div>
+                    <div ng-show = "game_has_started && small_blind == 5" id = "small_blind_button" class = "board_chips"></div>
+                    <div ng-show = "game_has_started && players_turn[5]" id = "players_turn" class = "board_chips"></div>
+                    <div ng-show = "!game_has_started && is_players_ready[5]" id = "players_ready" class = "board_chips"></div>
+                    <div ng-show = "game_has_started && is_players_folded[5]" id = "players_folded" class = "board_chips"></div>
+                </div>
+                <div ng-show = "players_contribution[5]>0" class="bet">${{players_contribution[5]}}</div>
+            </div>
+            <!-- blank spaces for board cards -->
+            <div id="board">
+                    <div ng-show = "flop.is_visible" class="card boardcard" ng-style="{'background-image': getImageLocation(flop[0].face, flop[0].suit)}"></div>
+                    <div ng-show = "flop.is_visible" id="flop2" class="card boardspace"></div>
+                    <div ng-show = "flop.is_visible" id="flop2" class="card boardcard" ng-style="{'background-image': getImageLocation(flop[1].face, flop[1].suit)}"></div>
+                    <div ng-show = "flop.is_visible" id="flop3" class="card boardspace"></div>
+                    <div ng-show = "flop.is_visible" id="flop3" class="card boardcard" ng-style="{'background-image': getImageLocation(flop[2].face, flop[2].suit)}"></div>
+                    <div ng-show = "turn.is_visible" id="turn" class="card boardspace"></div>
+                    <div ng-show = "turn.is_visible" id="turn" class="card boardcard" ng-style="{'background-image': getImageLocation(turn.face, turn.suit)}"></div>
+                    <div ng-show = "river.is_visible" id="river" class="card boardspace"></div>
+                    <div ng-show = "river.is_visible" id="river" class="card boardcard" ng-style="{'background-image': getImageLocation(river.face, river.suit)}"></div>
+            </div>
+            <div ng-show = "total_pot_value" id="pot"  >Total pot: ${{total_pot_value}}</div>
+
+            <!-- block for chat and game history -->
+            <div ng-show = "is_logged" id="chat_and_game_history">
+                <h3>Chat</h3>
+
+                <form class="form-horizontal" role="form" ng-submit = addChatEntry()>
+                    <div class="form-group">
+                        <input type="text" class="form-control" ng-model="new_entry" placeholder="Send a message (max 25 chars)" ng-maxlength="25" ng-minlength="1">
+                        <input type="submit" value="Submit" class="btn btn-primary"/>
+                    </div>
+                </form>
+
+                <div id="scrollable">
+                    <table class="table table-striped table-bordered">
+                        <thead>
+                        <tr>
+                            <th >User</th>
+                            <th >Msg</th>
+                            <th >Time</th>
+                        </tr>
+                        </thead>
+
+                        <tbody>
+                        <tr ng-repeat="entry in chat_entries" >
+                            <td>{{ entry.author }}</td>
+                            <td>{{ entry.string }}</td>
+                            <td>{{ entry.dt }}</td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- buttons for user options during the game -->
+        <div id="action_options" >
+            <button ng-disabled = "stand.button_disabled" ng-click = setStand() class="btn btn-danger">Stand up</button>
+            <button ng-show = "is_logged && !is_user_ready" ng-disabled = "ready.button_disabled" ng-click = setReady() class="btn btn-primary">Ready</button>
+            <button ng-show = "is_user_turn && game_has_started" ng-disabled = "fold.button_disabled" ng-click = setFold() class="btn btn-primary">Fold</button>
+            <button ng-show = "is_user_turn && game_has_started" ng-disabled = "call.button_disabled" ng-click = setCall() class="btn btn-primary" >Call</button>
+            <button ng-show = "is_user_turn && game_has_started" ng-disabled = "check.button_disabled" ng-click = setCheck() class="btn btn-success" >Check</button>
+
+            <div ng-show = "is_user_turn">
+                <input type="text"  ng-model="user_bet"  placeholder = "Type your new contribution" ng-minlength="1" ng-maxlength="4">
+                <button ng-disabled = "bet.button_disabled" ng-click = "setBet()" class="btn btn-warning">Bet</button>
+                <button ng-disabled = "raise.button_disabled" ng-click = "setRaise()" class="btn btn-warning">Raise</button>
+                <button ng-disabled = "allin.button_disabled" ng-click = "setAllIn()" class="btn btn-danger">All in</button>
+            </div>
+            <div ng-show = "!is_logged">
+                <input type="text"  ng-model="user_login"  placeholder = "Type your login (max 10 chars)" >
+                <button ng-click = "setLogin()" class="btn btn-primary">Login</button>
+            </div>
+        </div>
+        <div ng-show = "game_has_started" id="hand_power_panel">
+            <label><input type="checkbox" ng-model = "is_hand_power_visible" >Player's winning odds</label>
+            <div ng-show = "is_hand_power_visible">
+                <tr>
+                    <th >Win: {{user_odds.win}}%</th>
+                    <th >Draw: {{user_odds.draw}}%</th>
+                    <th >Loss: {{user_odds.loss}}%</th>
+                </tr>
+            </div>
+        </div>
+        </div>
+    </body>
+</html>
